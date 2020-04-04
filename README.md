@@ -19,7 +19,7 @@ Change `<MaxQuicksaves>3</MaxQuicksaves>` to whatever number you'd like. Note th
 ### Game crashes on startup
 - Go to `[Game Install Location]/Modules/BetterQuicksave/bin/Win64_Shipping_Client/` and right click each DLL file, click 'Properties', and then press the 'Unblock' button.
 
-- If you are still having issues and are using multiple mods, make sure all of your installed mods `SubModule.xml` files have the following lines:
+- If you are still having issues and are using multiple mods, make sure all of your installed mods' `SubModule.xml` files have the following lines:
 ```
   <Official value="false"/>
   <DependedModules>
