@@ -9,24 +9,24 @@ namespace BetterQuicksave
 
         public static string GetQuicksaveName()
         {
-            if (currentQuicksaveNum >= Main.Config.MaxQuicksaves)
+            if (currentQuicksaveNum >= Config.MaxQuicksaves)
             {
                 currentQuicksaveNum = 0;
             }
-            return $"{Main.Config.QuicksavePrefix}{++currentQuicksaveNum:000}";
+            return $"{Config.QuicksavePrefix}{++currentQuicksaveNum:000}";
         }
 
         public static bool IsValidName(string name)
         {
-            return Regex.IsMatch(name, Main.Config.QuicksaveNamePattern);
+            return Regex.IsMatch(name, Config.QuicksaveNamePattern);
         }
 
-        static int GetCurrentQuicksaveNumber()
+        private static int GetCurrentQuicksaveNumber()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
             foreach (SaveGameFileInfo saveFile in saveFiles)
             {
-                Match match = Regex.Match(saveFile.Name, Main.Config.QuicksaveNamePattern);
+                Match match = Regex.Match(saveFile.Name, Config.QuicksaveNamePattern);
                 if (match.Success)
                 {
                     int.TryParse(match.Groups[1].Value, out int num);

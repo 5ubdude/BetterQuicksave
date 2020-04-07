@@ -17,7 +17,7 @@
     <SubModule>
       <Name value="BetterQuicksave"/>
       <DLLName value="BetterQuicksave.dll"/>
-      <SubModuleClassType value="BetterQuicksave.Main"/>
+      <SubModuleClassType value="BetterQuicksave.SubModule"/>
       <Tags>
         <Tag key="DedicatedServerType" value="none" />
         <Tag key="IsNoRenderModeElement" value="false" />
