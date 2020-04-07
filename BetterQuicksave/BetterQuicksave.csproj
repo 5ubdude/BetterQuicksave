@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\BetterQuicksave\bin\Win64_Shipping_Client\</OutputPath>
+    <OutputPath>..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\BetterQuicksave_dev\bin\Win64_Shipping_Client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -60,23 +60,37 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\BetterQuicksaveConfig.cs" />
-    <Compile Include="src\Main.cs" />
-    <Compile Include="src\Patches.cs" />
+    <Compile Include="Source\Config.cs" />
+    <Compile Include="Source\SubModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\QuicksaveManager.cs" />
+    <Compile Include="Source\Patches\IsFileNameRerservedPatch.cs" />
+    <Compile Include="Source\Patches\QuickSaveCurrentGamePatch.cs" />
+    <Compile Include="Source\QuicksaveManager.cs" />
+    <Compile Include="Source\Utils\XmlSerialization.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SubModuleFiles\ModuleData\BetterQuicksaveConfig.xml" />
+    <Content Include="SubModuleFiles\SubModule_dev.xml" />
+    <Content Include="SubModuleFiles\SubModule.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="src\SubModuleFiles\ModuleData\BetterQuicksaveConfig.xml" />
-    <Content Include="src\SubModuleFiles\SubModule.xml" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(ProjectDir)src\SubModuleFiles\SubModule.xml" "$(TargetDir)..\..\SubModule.xml"
-mkdir "$(TargetDir)..\..\ModuleData"
-copy "$(ProjectDir)src\SubModuleFiles\ModuleData\BetterQuicksaveConfig.xml" "$(TargetDir)..\..\ModuleData\BetterQuicksaveConfig.xml"</PostBuildEvent>
+    <PostBuildEvent>IF $(ConfigurationName) == Release GOTO Release
+IF $(ConfigurationName) == Debug GOTO Debug
+
+:Release
+COPY "$(ProjectDir)SubModuleFiles\SubModule.xml" "$(TargetDir)..\..\SubModule.xml"
+GOTO End
+
+:Debug
+COPY "$(ProjectDir)SubModuleFiles\SubModule_dev.xml" "$(TargetDir)..\..\SubModule.xml"
+GOTO End
+
+:End
+MKDIR "$(TargetDir)..\..\ModuleData"
+COPY "$(ProjectDir)SubModuleFiles\ModuleData\BetterQuicksaveConfig.xml" "$(TargetDir)..\..\ModuleData\BetterQuicksaveConfig.xml"</PostBuildEvent>
   </PropertyGroup>
 </Project>
