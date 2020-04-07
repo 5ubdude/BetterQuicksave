@@ -2,9 +2,10 @@
 <Module>
   <Name value="Better Quicksave"/>
   <Id value="BetterQuicksave"/>
-  <Version value="v1.0.0"/>
+  <Version value="v1.0.1"/>
   <SingleplayerModule value="true"/>
   <MultiplayerModule value="false"/>
+  <Official value="false"/>
   <DependedModules>
     <DependedModule Id="Native"/>
     <DependedModule Id="SandBoxCore"/>
