@@ -2,7 +2,7 @@
 <Module>
   <Name value="Better Quicksave"/>
   <Id value="BetterQuicksave_dev"/>
-  <Version value="d1.0.1"/>
+  <Version value="d1.2.0"/>
   <SingleplayerModule value="true"/>
   <MultiplayerModule value="false"/>
   <Official value="false"/>
