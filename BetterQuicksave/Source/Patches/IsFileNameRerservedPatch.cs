@@ -6,9 +6,9 @@ namespace BetterQuicksave.Patches
     [HarmonyPatch(typeof(MBSaveLoad), "IsSaveFileNameReserved")]
     public class IsSaveFileNameReservedPatch
     {
-        static void Postfix(ref bool __result, string name)
+        private static void Postfix(ref bool __result, string name)
         {
-            __result = QuicksaveManager.IsValidName(name) || __result;
+            __result = QuicksaveManager.IsValidQuicksaveName(name) || __result;
         }
     }
 }

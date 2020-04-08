@@ -42,12 +42,28 @@
     <Reference Include="0Harmony, Version=2.0.0.9, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Lib.Harmony.2.0.0.9\lib\net472\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="SandBox">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\SandBox\bin\Win64_Shipping_Client\SandBox.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="System.Xml" />
+    <Reference Include="TaleWorlds.CampaignSystem">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="TaleWorlds.Core">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Engine">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.Engine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.InputSystem">
+      <HintPath>..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.InputSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="TaleWorlds.Library">
@@ -56,6 +72,11 @@
     </Reference>
     <Reference Include="TaleWorlds.MountAndBlade">
       <HintPath>..\..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.SaveSystem, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.SaveSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
