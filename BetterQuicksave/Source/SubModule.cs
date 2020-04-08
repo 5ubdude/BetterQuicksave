@@ -1,8 +1,9 @@
 ﻿using System;
+using HarmonyLib;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using HarmonyLib;
 using TaleWorlds.Core;
+using TaleWorlds.InputSystem;
 
 namespace BetterQuicksave
 {
@@ -12,6 +13,7 @@ namespace BetterQuicksave
         private const string harmonyId = "mod.subdude.bannerlord.betterquicksave";
         private Exception onSubModuleLoadException;
         private bool modActive;
+        private bool didStartupMessages;
 
         protected override void OnSubModuleLoad()
         {
@@ -30,7 +32,10 @@ namespace BetterQuicksave
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            DisplayStartupMessages();
+            if (!didStartupMessages)
+            {
+                DisplayStartupMessages();
+            }
         }
 
         public override void OnGameInitializationFinished(Game game)
@@ -39,6 +44,14 @@ namespace BetterQuicksave
             {
                 DisplayModInactiveWarning();
             }
+        }
+
+        protected override void OnApplicationTick(float dt)
+        {
+            if (Input.IsKeyReleased(Config.QuickloadKey) && QuicksaveManager.CanQuickload)
+            {
+                QuicksaveManager.LoadLatestQuicksave();   
+            }            
         }
 
         private void DisplayStartupMessages()
@@ -53,6 +66,8 @@ namespace BetterQuicksave
             {
                 DisplayModLoadedMessage();
             }
+
+            didStartupMessages = true;
         }
 
         private void DisplayModLoadedMessage()

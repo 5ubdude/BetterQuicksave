@@ -9,12 +9,17 @@ namespace BetterQuicksave.Patches
     [HarmonyPatch(typeof(MBSaveLoad), "QuickSaveCurrentGame")]
     public class QuickSaveCurrentGamePatch
     {
-        static readonly MethodInfo OverwriteSaveFile = AccessTools.Method(typeof(MBSaveLoad), "OverwriteSaveFile");
+        private static readonly MethodInfo OverwriteSaveFile = AccessTools.Method(typeof(MBSaveLoad), "OverwriteSaveFile");
 
-        static readonly MethodInfo GetQuicksaveName =
-            SymbolExtensions.GetMethodInfo(() => QuicksaveManager.GetQuicksaveName());
+        private static readonly MethodInfo GetQuicksaveName =
+            SymbolExtensions.GetMethodInfo(() => QuicksaveManager.GetNewQuicksaveName());
 
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static void Prefix()
+        {
+            QuicksaveManager.OnQuicksave();
+        }
+        
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             foreach (CodeInstruction instruction in instructions)
             {
