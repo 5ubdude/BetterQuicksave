@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<BetterQuicksaveConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <MaxQuicksaves>3</MaxQuicksaves>
+<BetterQuicksaveConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <MaxQuicksaves>3</MaxQuicksaves>
+    <!--  Choose the name prefix used for quicksaves 
+    (e.g. "quicksave_" will result in names like "quicksave_001")
+    if MaxQuicksaves is set to 1 this will just be used as the filename   -->
+    <QuicksavePrefix>quicksave_</QuicksavePrefix>
 </BetterQuicksaveConfig>
