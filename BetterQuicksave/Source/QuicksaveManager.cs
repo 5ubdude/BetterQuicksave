@@ -86,6 +86,17 @@ namespace BetterQuicksave
             return null;
         }
 
+		public static bool isLatestQuicksaveValid() {
+			SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
+			foreach(SaveGameFileInfo saveFile in saveFiles) {
+				if(IsValidQuicksaveName(saveFile.Name)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
         private static int GetCurrentQuicksaveNumber()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();

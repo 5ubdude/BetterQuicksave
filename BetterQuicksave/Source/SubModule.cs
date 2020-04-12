@@ -63,11 +63,15 @@ namespace BetterQuicksave
             } else
             if (Input.IsKeyReleased(Config.QuickloadKey) && QuicksaveManager.CanQuickload)
             {
-				if(Mission.Current != null) {
-					Mission.Current.RetreatMission();
-				}
-				load = true;
-            }            
+                if(QuicksaveManager.isLatestQuicksaveValid()) {
+				    if(Mission.Current != null) {
+					    Mission.Current.RetreatMission();
+				    }
+				    load = true;
+                } else {
+                    InformationManager.DisplayMessage(new InformationMessage("No quicksaves available."));
+                }
+            }
         }
 
         private void DisplayStartupMessages()
