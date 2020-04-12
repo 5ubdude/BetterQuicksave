@@ -12,8 +12,8 @@ namespace BetterQuicksave
 {
     public static class QuicksaveManager
     {
-        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running &&
-            GameStateManager.Current.ActiveState is MapState;
+        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running; //&&
+            //GameStateManager.Current.ActiveState is MapState;
         static int currentQuicksaveNum = GetCurrentQuicksaveNumber();
 
         public static string GetNewQuicksaveName()

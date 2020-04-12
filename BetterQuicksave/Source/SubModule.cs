@@ -4,6 +4,7 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.Core;
 using TaleWorlds.InputSystem;
+using TaleWorlds.CampaignSystem;
 
 namespace BetterQuicksave
 {
@@ -46,11 +47,26 @@ namespace BetterQuicksave
             }
         }
 
+        private static bool load = false;
+
         protected override void OnApplicationTick(float dt)
         {
+            if(load) {
+                if(GameStateManager.Current.ActiveState is MapState) {
+                    load = false;
+                    if(Mission.Current != null) {
+                        InformationManager.DisplayMessage(new InformationMessage("Mission is not null, failed to quickload!", Colors.Red));
+                    } else {
+                        QuicksaveManager.LoadLatestQuicksave();
+                    }
+                }
+            } else
             if (Input.IsKeyReleased(Config.QuickloadKey) && QuicksaveManager.CanQuickload)
             {
-                QuicksaveManager.LoadLatestQuicksave();   
+				if(Mission.Current != null) {
+					Mission.Current.RetreatMission();
+				}
+				load = true;
             }            
         }
 
