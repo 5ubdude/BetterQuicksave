@@ -5,6 +5,7 @@ using TaleWorlds.MountAndBlade;
 using TaleWorlds.Core;
 using TaleWorlds.InputSystem;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.SaveSystem.Load;
 
 namespace BetterQuicksave
 {
@@ -47,29 +48,39 @@ namespace BetterQuicksave
             }
         }
 
-        private static bool load = false;
+        private static LoadGameResult lgr = null;
 
         protected override void OnApplicationTick(float dt)
         {
-            if(load) {
+            if(lgr != null) {
                 if(GameStateManager.Current.ActiveState is MapState) {
-                    load = false;
                     if(Mission.Current != null) {
                         InformationManager.DisplayMessage(new InformationMessage("Mission is not null, failed to quickload!", Colors.Red));
                     } else {
-                        QuicksaveManager.LoadLatestQuicksave();
+                        QuicksaveManager.loadSave(lgr);
                     }
+                    lgr = null;
                 }
             } else
             if (Input.IsKeyReleased(Config.QuickloadKey) && QuicksaveManager.CanQuickload)
             {
-                if(QuicksaveManager.isLatestQuicksaveValid()) {
-				    if(Mission.Current != null) {
-					    Mission.Current.RetreatMission();
-				    }
-				    load = true;
-                } else {
+                lgr = QuicksaveManager.GetLatestQuicksave();
+                if(lgr == null) {
                     InformationManager.DisplayMessage(new InformationMessage("No quicksaves available."));
+                } else {
+                    if(lgr.LoadResult.Successful) {
+                        if(Mission.Current != null) {
+                            Mission.Current.RetreatMission();
+                        }
+                    } else {
+                        InformationManager.DisplayMessage(new InformationMessage("Unable to load quicksave:", 
+                        Colors.Yellow));
+                        foreach (LoadError loadError in lgr.LoadResult.Errors)
+                        {
+                            InformationManager.DisplayMessage(new InformationMessage(loadError.Message, Colors.Red));
+                        }
+                        lgr = null;
+                    }
                 }
             }
         }
