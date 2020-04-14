@@ -9,6 +9,9 @@ namespace BetterQuicksave
 {
     public class SubModule : MBSubModuleBase
     {
+        public static event Action OnGameInitFinishedEvent;
+        public static event Action OnGameEndEvent;
+        
         private Harmony harmony;
         private const string harmonyId = "mod.subdude.bannerlord.betterquicksave";
         private Exception onSubModuleLoadException;
@@ -21,6 +24,7 @@ namespace BetterQuicksave
             {
                 harmony = new Harmony(harmonyId);
                 harmony.PatchAll();
+                QuicksaveManager.Init();
                 modActive = true;
             }
             catch (Exception exception)
@@ -44,14 +48,21 @@ namespace BetterQuicksave
             {
                 DisplayModInactiveWarning();
             }
+            
+            OnGameInitFinishedEvent?.Invoke();
+        }
+
+        public override void OnGameEnd(Game game)
+        {
+            OnGameEndEvent?.Invoke();
         }
 
         protected override void OnApplicationTick(float dt)
         {
             if (Input.IsKeyReleased(Config.QuickloadKey) && QuicksaveManager.CanQuickload)
             {
-                QuicksaveManager.LoadLatestQuicksave();   
-            }            
+                QuicksaveManager.LoadLatestQuicksave();
+            }
         }
 
         private void DisplayStartupMessages()
@@ -80,7 +91,7 @@ namespace BetterQuicksave
         private void DisplayModInactiveWarning()
         {
             var message = new InformationMessage(
-                "Better Quicksave failed to initialize. Vanilla quicksave behavior is active!", 
+                "Better Quicksave failed to initialize. Vanilla quicksave behavior is active!",
                 Color.FromUint(16711680U));
             InformationManager.DisplayMessage(message);
         }

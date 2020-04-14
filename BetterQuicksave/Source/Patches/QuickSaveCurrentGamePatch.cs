@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -9,14 +10,15 @@ namespace BetterQuicksave.Patches
     [HarmonyPatch(typeof(MBSaveLoad), "QuickSaveCurrentGame")]
     public class QuickSaveCurrentGamePatch
     {
+        public static event Action OnQuicksave;
+        
         private static readonly MethodInfo OverwriteSaveFile = AccessTools.Method(typeof(MBSaveLoad), "OverwriteSaveFile");
-
         private static readonly MethodInfo GetQuicksaveName =
-            SymbolExtensions.GetMethodInfo(() => QuicksaveManager.GetNewQuicksaveName());
+            SymbolExtensions.GetMethodInfo(() => QuicksaveManager.GetNextQuicksaveName());
 
         private static void Prefix()
         {
-            QuicksaveManager.OnQuicksave();
+            OnQuicksave?.Invoke();
         }
         
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

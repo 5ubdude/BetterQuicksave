@@ -13,4 +13,7 @@
      Be careful with this as it will use that key regardless of what it is bound to in game.
      The quicksave key can be bound normally in the game options.  -->
     <QuickloadKey>67</QuickloadKey>
+    <!--  true/false Choose whether each character has their own quicksave slot(s). 
+    The character's name will be added to the save name -->
+    <PerCharacterSaves>true</PerCharacterSaves>
 </BetterQuicksaveConfig>

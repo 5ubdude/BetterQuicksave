@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
+using BetterQuicksave.Patches;
 using SandBox;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -14,31 +16,55 @@ namespace BetterQuicksave
     {
         public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running &&
             GameStateManager.Current.ActiveState is MapState;
-        static int currentQuicksaveNum = GetCurrentQuicksaveNumber();
 
-        public static string GetNewQuicksaveName()
+        private static readonly EventListeners eventListeners = new EventListeners();
+        private static int NextQuicksaveNumber { get; set; } = 1;
+        private static string CurrentPlayerName { get; set; } = string.Empty;
+        private static string QuicksaveNamePattern
         {
-            if (currentQuicksaveNum >= Config.MaxQuicksaves)
+            get
             {
-                currentQuicksaveNum = 0;
+                string playerCharacterName = string.Empty;
+                if (Config.PerCharacterSaves && CurrentPlayerName.Length > 0)
+                {
+                    playerCharacterName = $"{Regex.Escape(CurrentPlayerName)} ";
+                }
+                string prefix = Regex.Escape(Config.QuicksavePrefix);
+                string saveNumber = Config.MaxQuicksaves > 1 ? @"(\d{3})" : string.Empty;
+
+                return $"^{playerCharacterName}{prefix}{saveNumber}$";
+            }
+        }
+
+        static QuicksaveManager()
+        {
+            SubModule.OnGameInitFinishedEvent += eventListeners.OnGameInitFinished;
+            SubModule.OnGameEndEvent += eventListeners.OnGameEnd;
+            QuickSaveCurrentGamePatch.OnQuicksave += eventListeners.OnQuicksave;
+        }
+
+        /// <summary>
+        /// Empty method used to invoke constructor, needed in order to setup event listeners at the right time
+        /// and to prevent duplicate listeners from accidentally being created.
+        /// </summary>
+        public static void Init() { }
+        
+        public static string GetNextQuicksaveName()
+        {
+            if (NextQuicksaveNumber > Config.MaxQuicksaves)
+            {
+                NextQuicksaveNumber = 1;
             }
 
-            string quicksaveName;
-            if (Config.MaxQuicksaves > 1)
-            {
-                quicksaveName = $"{Config.QuicksavePrefix}{++currentQuicksaveNum:000}";
-            }
-            else
-            {
-                quicksaveName = Config.QuicksavePrefix;
-            }
+            string characterName = Config.PerCharacterSaves ? $"{CurrentPlayerName} ": string.Empty;
+            string saveNum = Config.MultipleQuicksaves ? $"{NextQuicksaveNumber:000}" : string.Empty;
 
-            return quicksaveName;
+            return $"{characterName}{Config.QuicksavePrefix}{saveNum}";
         }
 
         public static bool IsValidQuicksaveName(string name)
         {
-            return Regex.IsMatch(name, Config.QuicksaveNamePattern);
+            return Regex.IsMatch(name, QuicksaveNamePattern);
         }
 
         public static void LoadLatestQuicksave()
@@ -67,11 +93,19 @@ namespace BetterQuicksave
             }
         }
 
-        public static void OnQuicksave()
+        private static void SetCurrentPlayerName(Hero playerCharacter = null)
         {
-            InformationManager.DisplayMessage(new InformationMessage("Quicksaved."));
+            playerCharacter = playerCharacter ?? Campaign.Current.MainParty.LeaderHero;
+            CurrentPlayerName = $"{playerCharacter.Name} {playerCharacter.Clan.Name}";
+
+            SetNextQuicksaveNumber();
         }
 
+        private static void ClearCurrentPlayerName()
+        {
+            CurrentPlayerName = string.Empty;
+        }
+        
         private static LoadGameResult GetLatestQuicksave()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
@@ -86,20 +120,47 @@ namespace BetterQuicksave
             return null;
         }
 
-        private static int GetCurrentQuicksaveNumber()
+        private static void SetNextQuicksaveNumber()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
             foreach (SaveGameFileInfo saveFile in saveFiles)
             {
-                Match match = Regex.Match(saveFile.Name, Config.QuicksaveNamePattern);
+                Match match = Regex.Match(saveFile.Name, QuicksaveNamePattern);
                 if (match.Success)
                 {
-                    int.TryParse(match.Groups[1].Value, out int num);
-                    return num;
+                    Int32.TryParse(match.Groups[1].Value, out int num);
+                    NextQuicksaveNumber = num == 0 ? 1 : num + 1;
+                    return;
                 }
             }
 
-            return 0;
+            NextQuicksaveNumber = 1;
+        }
+
+        private class EventListeners
+        {
+            private void OnPlayerCharacterChanged(Hero hero, MobileParty party)
+            {
+                SetCurrentPlayerName(hero);
+            }
+
+            public void OnQuicksave()
+            {
+                InformationManager.DisplayMessage(new InformationMessage("Quicksaved."));
+                NextQuicksaveNumber++;
+            }
+
+            public void OnGameInitFinished()
+            {
+                CampaignEvents.OnPlayerCharacterChangedEvent.AddNonSerializedListener(this, OnPlayerCharacterChanged);
+                SetCurrentPlayerName();
+            }
+
+            public void OnGameEnd()
+            {
+                CampaignEvents.OnPlayerCharacterChangedEvent.ClearListeners(this);
+                ClearCurrentPlayerName();
+            }
         }
     }
 }
