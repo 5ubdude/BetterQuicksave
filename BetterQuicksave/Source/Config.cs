@@ -11,13 +11,13 @@ namespace BetterQuicksave
     [XmlRoot("BetterQuicksaveConfig")]
     public class Config
     {
-        public static string QuicksavePrefix => 
-            Regex.Replace(Instance.InstanceQuicksavePrefix, "[^\\w\\-. ]", "");
-        public static string QuicksaveNamePattern => 
-            MaxQuicksaves > 1 ? $@"^{Regex.Escape(QuicksavePrefix)}(\d{{3}})$" : $@"^{Regex.Escape(QuicksavePrefix)}$";
         public static ModuleInfo ModInfo => Instance.InstanceModInfo;
+        public static string QuicksavePrefix => 
+            Regex.Replace(Instance.InstanceQuicksavePrefix, @"[^\w\-. ]", "");
         public static int MaxQuicksaves => Instance.InstanceMaxQuicksaves;
+        public static bool MultipleQuicksaves => MaxQuicksaves > 1;
         public static InputKey QuickloadKey => (InputKey)Instance.InstanceQuickloadKey;
+        public static bool PerCharacterSaves => Instance.InstancePerCharacterSaves;
 
         private static readonly string ModBasePath =
             Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "..", ".."));
@@ -46,7 +46,9 @@ namespace BetterQuicksave
         public string InstanceQuicksavePrefix { get; set; } = "quicksave_";
         [XmlElement("QuickloadKey")]
         public int InstanceQuickloadKey { get; set; } = (int)InputKey.F9;
-
+        [XmlElement("PerCharacterSaves")]
+        public bool InstancePerCharacterSaves { get; set; }
+        
         private Config() { }
         
         private static Config LoadConfig()
