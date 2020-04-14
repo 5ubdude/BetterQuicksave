@@ -14,9 +14,8 @@ namespace BetterQuicksave
 {
     public static class QuicksaveManager
     {
-        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running &&
-            GameStateManager.Current.ActiveState is MapState;
-
+        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running;
+      
         private static readonly EventListeners eventListeners = new EventListeners();
         private static int NextQuicksaveNumber { get; set; } = 1;
         private static string CurrentPlayerName { get; set; } = string.Empty;
@@ -67,30 +66,11 @@ namespace BetterQuicksave
             return Regex.IsMatch(name, QuicksaveNamePattern);
         }
 
-        public static void LoadLatestQuicksave()
-        {
-            LoadGameResult loadGameResult = GetLatestQuicksave();
-            if (loadGameResult == null)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("No quicksaves available."));
-                return;
-            }
-            if (!loadGameResult.LoadResult.Successful)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("Unable to load quicksave:", 
-                    Colors.Yellow));
-                foreach (LoadError loadError in loadGameResult.LoadResult.Errors)
-                {
-                    InformationManager.DisplayMessage(new InformationMessage(loadError.Message, Colors.Red));
-                }
-            }
-            else
-            {
-                ScreenManager.PopScreen();
-                GameStateManager.Current.CleanStates(0);
-                GameStateManager.Current = Module.CurrentModule.GlobalGameStateManager;
-                MBGameManager.StartNewGame(new CampaignGameManager(loadGameResult.LoadResult));
-            }
+        public static void loadSave(LoadGameResult lgr) {
+            ScreenManager.PopScreen();
+            GameStateManager.Current.CleanStates(0);
+            GameStateManager.Current = Module.CurrentModule.GlobalGameStateManager;
+            MBGameManager.StartNewGame(new CampaignGameManager(lgr.LoadResult));
         }
 
         private static void SetCurrentPlayerName(Hero playerCharacter = null)
@@ -105,8 +85,8 @@ namespace BetterQuicksave
         {
             CurrentPlayerName = string.Empty;
         }
-        
-        private static LoadGameResult GetLatestQuicksave()
+      
+        public static LoadGameResult GetLatestQuicksave()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
             foreach (SaveGameFileInfo saveFile in saveFiles)
