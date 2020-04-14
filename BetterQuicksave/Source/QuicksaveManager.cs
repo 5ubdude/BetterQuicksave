@@ -12,8 +12,7 @@ namespace BetterQuicksave
 {
     public static class QuicksaveManager
     {
-        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running &&
-            GameStateManager.Current.ActiveState is MapState;
+        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running;
         static int currentQuicksaveNum = GetCurrentQuicksaveNumber();
 
         public static string GetNewQuicksaveName()
@@ -41,30 +40,11 @@ namespace BetterQuicksave
             return Regex.IsMatch(name, Config.QuicksaveNamePattern);
         }
 
-        public static void LoadLatestQuicksave()
-        {
-            LoadGameResult loadGameResult = GetLatestQuicksave();
-            if (loadGameResult == null)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("No quicksaves available."));
-                return;
-            }
-            if (!loadGameResult.LoadResult.Successful)
-            {
-                InformationManager.DisplayMessage(new InformationMessage("Unable to load quicksave:", 
-                    Colors.Yellow));
-                foreach (LoadError loadError in loadGameResult.LoadResult.Errors)
-                {
-                    InformationManager.DisplayMessage(new InformationMessage(loadError.Message, Colors.Red));
-                }
-            }
-            else
-            {
-                ScreenManager.PopScreen();
-                GameStateManager.Current.CleanStates(0);
-                GameStateManager.Current = Module.CurrentModule.GlobalGameStateManager;
-                MBGameManager.StartNewGame(new CampaignGameManager(loadGameResult.LoadResult));
-            }
+        public static void loadSave(LoadGameResult lgr) {
+            ScreenManager.PopScreen();
+            GameStateManager.Current.CleanStates(0);
+            GameStateManager.Current = Module.CurrentModule.GlobalGameStateManager;
+            MBGameManager.StartNewGame(new CampaignGameManager(lgr.LoadResult));
         }
 
         public static void OnQuicksave()
@@ -72,7 +52,7 @@ namespace BetterQuicksave
             InformationManager.DisplayMessage(new InformationMessage("Quicksaved."));
         }
 
-        private static LoadGameResult GetLatestQuicksave()
+        public static LoadGameResult GetLatestQuicksave()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
             foreach (SaveGameFileInfo saveFile in saveFiles)
