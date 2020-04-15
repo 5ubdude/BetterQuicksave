@@ -7,12 +7,12 @@
     some special characters aren't allowed and will be stripped out
     if MaxQuicksaves is set to 1 this will just be used as the filename  -->
     <QuicksavePrefix>quicksave_</QuicksavePrefix>
-    <!--  Choose which key you want bound to quickload. By default this is F9 (represented by 67).
+    <!--  Choose which key you want bound to quickload. By default this is F10 (represented by 68).
      You can find a full list of key codes here: https://gist.github.com/5ubdude/ef5b111d77231274572564888eaf6f25
      (ignore the weird numbers to the right)
      Be careful with this as it will use that key regardless of what it is bound to in game.
      The quicksave key can be bound normally in the game options.  -->
-    <QuickloadKey>67</QuickloadKey>
+    <QuickloadKey>68</QuickloadKey>
     <!--  true/false Choose whether each character has their own quicksave slot(s). 
     The character's name will be added to the save name -->
     <PerCharacterSaves>true</PerCharacterSaves>
