@@ -16,11 +16,6 @@ namespace BetterQuicksave.Patches
         private static readonly MethodInfo GetQuicksaveName =
             SymbolExtensions.GetMethodInfo(() => QuicksaveManager.GetNextQuicksaveName());
 
-        private static void Prefix()
-        {
-            OnQuicksave?.Invoke();
-        }
-        
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             foreach (CodeInstruction instruction in instructions)
@@ -33,6 +28,11 @@ namespace BetterQuicksave.Patches
 
                 yield return instruction;
             }
+        }
+
+        private static void Postfix()
+        {
+            OnQuicksave?.Invoke();
         }
     }
 }

@@ -13,7 +13,8 @@ namespace BetterQuicksave
     {
         public static event Action OnGameInitFinishedEvent;
         public static event Action OnGameEndEvent;
-        
+        public static event Action OnApplicationTickEvent;
+
         private Harmony harmony;
         private const string harmonyId = "mod.subdude.bannerlord.betterquicksave";
         private Exception onSubModuleLoadException;
@@ -50,7 +51,7 @@ namespace BetterQuicksave
             {
                 DisplayModInactiveWarning();
             }
-            
+
             OnGameInitFinishedEvent?.Invoke();
         }
 
@@ -58,42 +59,14 @@ namespace BetterQuicksave
         {
             OnGameEndEvent?.Invoke();
         }
-
-        private static LoadGameResult lgr = null;
-
+        
         protected override void OnApplicationTick(float dt)
         {
-            if(lgr != null) {
-                if(GameStateManager.Current.ActiveState is MapState) {
-                    if(Mission.Current != null) {
-                        InformationManager.DisplayMessage(new InformationMessage("Mission is not null, failed to quickload!", Colors.Red));
-                    } else {
-                        QuicksaveManager.loadSave(lgr);
-                    }
-                    lgr = null;
-                }
-            } else
             if (Input.IsKeyReleased(Config.QuickloadKey) && QuicksaveManager.CanQuickload)
             {
-                lgr = QuicksaveManager.GetLatestQuicksave();
-                if(lgr == null) {
-                    InformationManager.DisplayMessage(new InformationMessage("No quicksaves available."));
-                } else {
-                    if(lgr.LoadResult.Successful) {
-                        if(Mission.Current != null) {
-                            Mission.Current.RetreatMission();
-                        }
-                    } else {
-                        InformationManager.DisplayMessage(new InformationMessage("Unable to load quicksave:", 
-                        Colors.Yellow));
-                        foreach (LoadError loadError in lgr.LoadResult.Errors)
-                        {
-                            InformationManager.DisplayMessage(new InformationMessage(loadError.Message, Colors.Red));
-                        }
-                        lgr = null;
-                    }
-                }
+                QuicksaveManager.Quickload();
             }
+            OnApplicationTickEvent?.Invoke();
         }
 
         private void DisplayStartupMessages()

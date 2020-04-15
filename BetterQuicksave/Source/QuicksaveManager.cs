@@ -19,6 +19,7 @@ namespace BetterQuicksave
         private static readonly EventListeners eventListeners = new EventListeners();
         private static int NextQuicksaveNumber { get; set; } = 1;
         private static string CurrentPlayerName { get; set; } = string.Empty;
+        private static LoadGameResult CurrentLoadGameResult { get; set; } = null;
         private static string QuicksaveNamePattern
         {
             get
@@ -39,6 +40,7 @@ namespace BetterQuicksave
         {
             SubModule.OnGameInitFinishedEvent += eventListeners.OnGameInitFinished;
             SubModule.OnGameEndEvent += eventListeners.OnGameEnd;
+            SubModule.OnApplicationTickEvent += eventListeners.OnApplicationTick;
             QuickSaveCurrentGamePatch.OnQuicksave += eventListeners.OnQuicksave;
         }
 
@@ -66,7 +68,70 @@ namespace BetterQuicksave
             return Regex.IsMatch(name, QuicksaveNamePattern);
         }
 
-        public static void loadSave(LoadGameResult lgr) {
+        public static void Quickload()
+        {
+            CurrentLoadGameResult = GetLatestQuicksave();
+            if (CurrentLoadGameResult == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("No quicksaves available."));
+            }
+            else
+            {
+                if (CurrentLoadGameResult.LoadResult.Successful)
+                {
+                    if (Mission.Current != null)
+                    {
+                        Mission.Current.RetreatMission();
+                    }
+                }
+                else
+                {
+                    InformationManager.DisplayMessage(new InformationMessage("Unable to load quicksave:",
+                        Colors.Yellow));
+                    foreach (LoadError loadError in CurrentLoadGameResult.LoadResult.Errors)
+                    {
+                        InformationManager.DisplayMessage(new InformationMessage(loadError.Message, Colors.Red));
+                    }
+
+                    CurrentLoadGameResult = null;
+                }
+            }
+        }
+
+        private static LoadGameResult GetLatestQuicksave()
+        {
+            SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
+            foreach (SaveGameFileInfo saveFile in saveFiles)
+            {
+                if (IsValidQuicksaveName(saveFile.Name))
+                {
+                    return MBSaveLoad.LoadSaveGameData(saveFile.Name, Utilities.GetModulesNames());
+                }
+            }
+
+            return null;
+        }
+
+        private static void HandleCurrentLoadGameResult()
+        {
+            if (GameStateManager.Current.ActiveState is MapState)
+            {
+                if (Mission.Current != null)
+                {
+                    InformationManager.DisplayMessage(
+                        new InformationMessage("Mission is not null, failed to quickload!", Colors.Red));
+                }
+                else
+                {
+                    LoadSave(CurrentLoadGameResult);
+                }
+
+                CurrentLoadGameResult = null;
+            }
+        }
+
+        private static void LoadSave(LoadGameResult lgr)
+        {
             ScreenManager.PopScreen();
             GameStateManager.Current.CleanStates(0);
             GameStateManager.Current = Module.CurrentModule.GlobalGameStateManager;
@@ -85,20 +150,6 @@ namespace BetterQuicksave
         {
             CurrentPlayerName = string.Empty;
         }
-      
-        public static LoadGameResult GetLatestQuicksave()
-        {
-            SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
-            foreach (SaveGameFileInfo saveFile in saveFiles)
-            {
-                if (IsValidQuicksaveName(saveFile.Name))
-                {
-                    return MBSaveLoad.LoadSaveGameData(saveFile.Name, Utilities.GetModulesNames());
-                }
-            }
-
-            return null;
-        }
 
         private static void SetNextQuicksaveNumber()
         {
@@ -109,7 +160,7 @@ namespace BetterQuicksave
                 if (match.Success)
                 {
                     Int32.TryParse(match.Groups[1].Value, out int num);
-                    NextQuicksaveNumber = num == 0 ? 1 : num + 1;
+                    NextQuicksaveNumber = num + 1;
                     return;
                 }
             }
@@ -119,6 +170,14 @@ namespace BetterQuicksave
 
         private class EventListeners
         {
+            public void OnApplicationTick()
+            {
+                if (CurrentLoadGameResult != null)
+                {
+                    HandleCurrentLoadGameResult();
+                }
+            }
+            
             private void OnPlayerCharacterChanged(Hero hero, MobileParty party)
             {
                 SetCurrentPlayerName(hero);
