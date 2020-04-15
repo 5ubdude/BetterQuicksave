@@ -18,7 +18,15 @@ namespace BetterQuicksave
       
         private static readonly EventListeners eventListeners = new EventListeners();
         private static int NextQuicksaveNumber { get; set; } = 1;
-        private static string CurrentPlayerName { get; set; } = string.Empty;
+        private static string CurrentPlayerName
+        {
+            get
+            {
+                Hero player = Campaign.Current?.MainParty?.LeaderHero;
+                return player != null ? $"{player.Name} {player.Clan.Name}" : "No Name";
+            }
+        }
+
         private static LoadGameResult CurrentLoadGameResult { get; set; } = null;
         private static string QuicksaveNamePattern
         {
@@ -138,19 +146,6 @@ namespace BetterQuicksave
             MBGameManager.StartNewGame(new CampaignGameManager(lgr.LoadResult));
         }
 
-        private static void SetCurrentPlayerName(Hero playerCharacter = null)
-        {
-            playerCharacter = playerCharacter ?? Campaign.Current.MainParty.LeaderHero;
-            CurrentPlayerName = $"{playerCharacter.Name} {playerCharacter.Clan.Name}";
-
-            SetNextQuicksaveNumber();
-        }
-
-        private static void ClearCurrentPlayerName()
-        {
-            CurrentPlayerName = string.Empty;
-        }
-
         private static void SetNextQuicksaveNumber()
         {
             SaveGameFileInfo[] saveFiles = MBSaveLoad.GetSaveFiles();
@@ -180,7 +175,7 @@ namespace BetterQuicksave
             
             private void OnPlayerCharacterChanged(Hero hero, MobileParty party)
             {
-                SetCurrentPlayerName(hero);
+                SetNextQuicksaveNumber();
             }
 
             public void OnQuicksave()
@@ -192,13 +187,11 @@ namespace BetterQuicksave
             public void OnGameInitFinished()
             {
                 CampaignEvents.OnPlayerCharacterChangedEvent.AddNonSerializedListener(this, OnPlayerCharacterChanged);
-                SetCurrentPlayerName();
             }
 
             public void OnGameEnd()
             {
                 CampaignEvents.OnPlayerCharacterChangedEvent.ClearListeners(this);
-                ClearCurrentPlayerName();
             }
         }
     }
