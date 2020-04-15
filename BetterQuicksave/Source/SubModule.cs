@@ -4,8 +4,6 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.Core;
 using TaleWorlds.InputSystem;
-using TaleWorlds.CampaignSystem;
-using TaleWorlds.SaveSystem.Load;
 
 namespace BetterQuicksave
 {
