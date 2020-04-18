@@ -45,17 +45,23 @@ namespace BetterQuicksave
 
         public override void OnGameInitializationFinished(Game game)
         {
-            if (!modActive)
+            if (game.GameType.SupportsSaving)
             {
-                DisplayModInactiveWarning();
-            }
+                if (!modActive)
+                {
+                    DisplayModInactiveWarning();
+                }
 
-            OnGameInitFinishedEvent?.Invoke();
+                OnGameInitFinishedEvent?.Invoke();
+            }
         }
 
         public override void OnGameEnd(Game game)
         {
-            OnGameEndEvent?.Invoke();
+            if (game.GameType.SupportsSaving)
+            {
+                OnGameEndEvent?.Invoke();
+            }
         }
         
         protected override void OnApplicationTick(float dt)

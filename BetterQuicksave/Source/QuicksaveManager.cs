@@ -14,7 +14,7 @@ namespace BetterQuicksave
 {
     public static class QuicksaveManager
     {
-        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running;
+        public static bool CanQuickload => Game.Current?.CurrentState == Game.State.Running && Game.Current.GameType.SupportsSaving;
       
         private static readonly EventListeners eventListeners = new EventListeners();
         private static int NextQuicksaveNumber { get; set; } = 1;
@@ -186,12 +186,19 @@ namespace BetterQuicksave
 
             public void OnGameInitFinished()
             {
-                CampaignEvents.OnPlayerCharacterChangedEvent.AddNonSerializedListener(this, OnPlayerCharacterChanged);
+                if (Campaign.Current != null)
+                {
+                    CampaignEvents.OnPlayerCharacterChangedEvent.AddNonSerializedListener(this,
+                        OnPlayerCharacterChanged);
+                }
             }
 
             public void OnGameEnd()
             {
-                CampaignEvents.OnPlayerCharacterChangedEvent.ClearListeners(this);
+                if (Campaign.Current != null)
+                {
+                    CampaignEvents.OnPlayerCharacterChangedEvent.ClearListeners(this);
+                }
             }
         }
     }
